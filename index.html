@@ -2,14 +2,64 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>GL/Yuri Catalog Viewer</title>
+  <title>Unfolding Petals – GL/Yuri Catalog</title>
   <style>
-    /* Optional: Basic styling */
-    .catalog-container { padding: 20px; font-family: sans-serif; }
-    .catalog-item { margin-bottom: 20px; }
-    .catalog-item img { width: 100%; max-width: 300px; border-radius: 8px; }
-    .empty-state { color: #888; font-style: italic; margin-top: 40px; }
-    .loading { color: #555; font-weight: bold; }
+    body {
+      background: #fdf6f9;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .catalog-container {
+      padding: 40px 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .catalog-item {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      padding: 20px;
+      margin-bottom: 30px;
+      transition: transform 0.3s ease;
+    }
+
+    .catalog-item:hover {
+      transform: scale(1.02);
+    }
+
+    .catalog-item img {
+      width: 100%;
+      max-width: 300px;
+      border-radius: 8px;
+      display: block;
+      margin-bottom: 15px;
+    }
+
+    .catalog-item h3 {
+      margin: 0 0 10px;
+      font-size: 1.4em;
+      color: #d14b8f;
+    }
+
+    .catalog-item p {
+      margin: 0;
+      color: #555;
+    }
+
+    .empty-state, .loading {
+      text-align: center;
+      font-style: italic;
+      color: #999;
+      margin-top: 60px;
+    }
+
+    .loading {
+      font-weight: bold;
+      color: #d14b8f;
+    }
   </style>
 </head>
 <body>
@@ -18,10 +68,9 @@
     <div class="loading">Loading your poetic archive...</div>
   </div>
 
-  <!-- Paste the script here -->
   <script>
     const BIN_ID = "689401057b4b8670d8af408f";
-    const MASTER_KEY = "$2a$10$EMTFAE2G8t.9FW5xoaGbrOVsom1F9JBouSgBbYfIWxEdE1ZkS.xxi"; // Replace with your real key
+    const MASTER_KEY = "$2a$10$EMTFAE2G8t.9FW5xoaGbrOVsom1F9JBouSgBbYfIWxEdE1ZkS.xxi"; // ← Replace with your real key
 
     async function loadCatalog() {
       try {
@@ -37,10 +86,10 @@
         }
 
         const result = await response.json();
-        const catalog = result.record;
+        const catalog = result.record.catalog;
 
-        if (!catalog || Object.keys(catalog).length === 0) {
-          showEmptyState("Catalog is empty or missing.");
+        if (!Array.isArray(catalog) || catalog.length === 0) {
+          showEmptyState("No entries found in your catalog.");
           return;
         }
 
@@ -55,11 +104,11 @@
       const container = document.getElementById("catalog");
       container.innerHTML = "";
 
-      data.entries.forEach(entry => {
+      data.forEach(entry => {
         const item = document.createElement("div");
         item.className = "catalog-item";
         item.innerHTML = `
-          <img src="${entry.image}" alt="${entry.title}" />
+          <img src="${entry.thumbnail}" alt="${entry.title}" />
           <h3>${entry.title}</h3>
           <p>${entry.description}</p>
         `;
