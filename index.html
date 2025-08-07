@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Yuriverse Viewer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #fff0f5;
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    input, button {
+      padding: 0.6rem;
+      margin: 0.5rem;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #ffb6c1;
+      border: none;
+      cursor: pointer;
+    }
+    .hidden {
+      display: none;
+    }
+    .entry {
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 1rem;
+      margin: 1rem;
+      width: 90%;
+      max-width: 600px;
+      transition: transform 0.3s ease;
+    }
+    .entry:hover {
+      transform: scale(1.02);
+    }
+    .entry img {
+      max-width: 100%;
+      border-radius: 4px;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <h2>🌸 Unlock Yuriverse</h2>
+  <input type="password" id="passwordInput" placeholder="Enter passphrase" />
+  <button onclick="checkPassword()">Enter</button>
+
+  <div id="viewer" class="hidden">
+    <h3>✨ Your Catalog</h3>
+    <div id="catalogContainer"></div>
+  </div>
+
+  <script>
+    const PASSWORD = "UnfoldingPetals_2025🌸";
+    const BIN_ID = "YOUR_BIN_ID"; // Replace with your actual JSONBin Bin ID
+    const MASTER_KEY = "YOUR_MASTER_KEY"; // Replace with your actual JSONBin Master Key
+
+    async function fetchCatalogFromJSONBin() {
+      const url = `https://api.jsonbin.io/v3/b/${BIN_ID}/latest`;
+      const headers = {
+        "X-Master-Key": MASTER_KEY,
+        "Content-Type": "application/json"
+      };
+
+      try {
+        const res = await fetch(url, { headers });
+        if (!res.ok) throw new Error("Catalog not found");
+        const data = await res.json();
+        return data.record;
+      } catch (err) {
+        console.error("Failed to load catalog:", err);
+        return null;
+      }
+    }
+
+    function checkPassword() {
+      const input = document.getElementById("passwordInput").value;
+      if (input === PASSWORD) {
+        document.getElementById("viewer").classList.remove("hidden");
+        document.getElementById("passwordInput").style.display = "none";
+        document.querySelector("button").style.display = "none";
+        loadCatalog();
+      } else {
+        alert("That phrase doesn't unlock the petals.");
+      }
+    }
+
+    async function loadCatalog() {
+      const catalog = await fetchCatalogFromJSONBin();
+      const container = document.getElementById("catalogContainer");
+
+      if (!catalog || !catalog.entries || catalog.entries.length === 0) {
+        container.innerHTML = "<p>No entries found in the catalog.</p>";
+        return;
+      }
+
+      catalog.entries.forEach(entry => {
+        const div = document.createElement("div");
+        div.className = "entry";
+        div.innerHTML = `
+          <h4>${entry.title}</h4>
+          <p>${entry.description}</p>
+          ${entry.image ? `<img src="${entry.image}" alt="${entry.title}">` : ""}
+        `;
+        container.appendChild(div);
+      });
+    }
+  </script>
+</body>
+</html>
